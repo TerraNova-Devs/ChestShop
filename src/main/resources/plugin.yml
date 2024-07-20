@@ -1,0 +1,13 @@
+name: ChestShop
+version: '1.0-SNAPSHOT'
+main: org.chestShop.ChestShop
+api-version: '1.21'
+commands:
+  generatesilver:
+    description: Generates Silver for testing purposes.
+    usage: /generatesilver
+    permission: chestshop.generatesilver
+permissions:
+  chestshop.generatesilver:
+    description: Allows the player to generate Silver for testing purposes.
+    default: op

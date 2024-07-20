@@ -111,7 +111,7 @@ public class ShopCreationListener implements Listener {
         data.set(new NamespacedKey(plugin, "chestX"), PersistentDataType.INTEGER, attachedBlock.getX());
         data.set(new NamespacedKey(plugin, "chestY"), PersistentDataType.INTEGER, attachedBlock.getY());
         data.set(new NamespacedKey(plugin, "chestZ"), PersistentDataType.INTEGER, attachedBlock.getZ());
-        data.set(new NamespacedKey(plugin, "ironNuggetsVault"), PersistentDataType.INTEGER, 0);
+        data.set(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
         sign.setWaxed(true);
         sign.update();
     }

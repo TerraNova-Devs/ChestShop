@@ -1,4 +1,0 @@
-name: ChestShop
-version: '1.0-SNAPSHOT'
-main: org.chestShop.ChestShop
-api-version: '1.21'

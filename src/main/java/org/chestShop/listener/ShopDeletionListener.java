@@ -15,6 +15,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.chestShop.ChestShop;
 import org.chestShop.utils.ChatUtils;
+import org.chestShop.utils.silver.SilverManager;
 
 import java.util.UUID;
 
@@ -50,10 +51,11 @@ public class ShopDeletionListener implements Listener {
     }
 
     private void dropEarnings(BlockBreakEvent event, PersistentDataContainer data) {
-        Integer ironNuggetsCount = data.get(new NamespacedKey(plugin, "ironNuggetsVault"), PersistentDataType.INTEGER);
-        if (ironNuggetsCount != null && ironNuggetsCount > 0) {
-            ItemStack ironNuggets = new ItemStack(Material.IRON_NUGGET, ironNuggetsCount);
-            event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), ironNuggets);
+        Integer silverCount = data.get(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER);
+        if (silverCount != null && silverCount > 0) {
+            ItemStack silver = SilverManager.get().placeholder();
+            silver.setAmount(silverCount);
+            event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), silver);
         }
     }
 }

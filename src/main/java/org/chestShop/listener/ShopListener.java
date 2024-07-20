@@ -1,26 +1,39 @@
 package org.chestShop.listener;
 
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.api.BinaryTagHolder;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.DataComponentValue;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
-import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.chestShop.ChestShop;
 import org.chestShop.helper.InventoryHelper;
 import org.chestShop.utils.ChatUtils;
+import org.chestShop.utils.silver.SilverManager;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ShopListener implements Listener {
@@ -48,11 +61,29 @@ public class ShopListener implements Listener {
             return;
         }
 
+        if(event.getAction() == Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
+            handlePreviewItem(event, player, data);
+            return;
+        }
+
         if (isOwner) {
             handleOwnerInteract(event, player, sign, data, chest);
         } else {
             handleCustomerInteract(event, player, sign, data, chest);
         }
+    }
+
+    private void handlePreviewItem(PlayerInteractEvent event, Player player, PersistentDataContainer data){
+        ItemStack shopItem = getShopItem(data);
+
+        Component itemComponent = Component.text("[").color(TextColor.color(0x00FF00))
+                .append(shopItem.getItemMeta().hasDisplayName() ? shopItem.getItemMeta().displayName() : Component.text(shopItem.getType().name()))
+                        .color(TextColor.color(0x00FF00))
+                .append(Component.text("]").color(TextColor.color(0x00FF00)))
+                .hoverEvent(shopItem);
+
+        player.sendMessage(itemComponent);
+        event.setCancelled(true);
     }
 
     private boolean isShopSign(Sign sign) {
@@ -83,23 +114,23 @@ public class ShopListener implements Listener {
     }
 
     private void addVaultToInventory(PersistentDataContainer data, Inventory shopInventory) {
-        int ironNuggetCount = data.getOrDefault(new NamespacedKey(plugin, "ironNuggetsVault"), PersistentDataType.INTEGER, 0);
+        int silverCount = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
 
         ItemStack withdrawItem = new ItemStack(Material.RED_WOOL);
         ItemMeta withdrawMeta = withdrawItem.getItemMeta();
-        withdrawMeta.displayName(ChatUtils.returnRedFade("Bis zu 16 Eisennuggets abheben"));
+        withdrawMeta.displayName(ChatUtils.returnRedFade("Bis zu 16 Silber abheben"));
         withdrawItem.setItemMeta(withdrawMeta);
         shopInventory.setItem(10, withdrawItem);
 
-        ItemStack ironNuggets = new ItemStack(Material.IRON_NUGGET);
-        ItemMeta ironNuggetsMeta = ironNuggets.getItemMeta();
-        ironNuggetsMeta.displayName(ChatUtils.returnYellowFade("Eisennuggets: " + ironNuggetCount));
-        ironNuggets.setItemMeta(ironNuggetsMeta);
-        shopInventory.setItem(11, ironNuggets);
+        ItemStack silver = SilverManager.get().placeholder();
+        ItemMeta silverMeta = silver.getItemMeta();
+        silverMeta.displayName(ChatUtils.returnYellowFade("Silber: " + silverCount));
+        silver.setItemMeta(silverMeta);
+        shopInventory.setItem(11, silver);
 
         ItemStack depositItem = new ItemStack(Material.GREEN_WOOL);
         ItemMeta depositMeta = depositItem.getItemMeta();
-        depositMeta.displayName(ChatUtils.returnGreenFade("Bis zu 16 Eisennuggets einzahlen"));
+        depositMeta.displayName(ChatUtils.returnGreenFade("Bis zu 16 Silber einzahlen"));
         depositItem.setItemMeta(depositMeta);
         shopInventory.setItem(12, depositItem);
     }
@@ -117,7 +148,8 @@ public class ShopListener implements Listener {
         int buyPrice = data.getOrDefault(new NamespacedKey(plugin, "buyPrice"), PersistentDataType.INTEGER, 0);
         int sellPrice = data.getOrDefault(new NamespacedKey(plugin, "sellPrice"), PersistentDataType.INTEGER, 0);
         int quantity = data.getOrDefault(new NamespacedKey(plugin, "quantity"), PersistentDataType.INTEGER, 1);
-        ItemStack paymentItem = new ItemStack(Material.IRON_NUGGET, buyPrice);
+        ItemStack paymentItem = SilverManager.get().placeholder();
+        paymentItem.setAmount(buyPrice);
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             shopItem.setAmount(quantity);
@@ -135,11 +167,11 @@ public class ShopListener implements Listener {
             }
 
             player.getInventory().removeItem(paymentItem);
-            if (!player.getInventory().addItem(shopItem).isEmpty()) {
+            if (!addItemsToPlayerInventory(player, shopItem, quantity)) {
                 ChatUtils.sendErrorMessage(player, "Der Artikel konnte nicht deinem Inventar hinzugefügt werden. Bitte überprüfe deinen Inventarplatz.");
-                chest.getInventory().addItem(shopItem);
+                addItemsToInventory(chest.getInventory(), shopItem, quantity);
             } else {
-                ChatUtils.sendSuccessMessage(player, "Du hast " + quantity + "x " + shopItem.getType().name() + " für " + buyPrice + " Eisennuggets gekauft.");
+                ChatUtils.sendSuccessMessage(player, "Du hast " + quantity + "x " + shopItem.getType().name() + " für " + buyPrice + " Silber gekauft.");
                 updateEarnings(data, buyPrice);
                 sign.update();  // Ensures sign is updated after earnings change
             }
@@ -162,20 +194,58 @@ public class ShopListener implements Listener {
                 return;
             }
 
-            // Check if the shop has enough iron nuggets to pay the player
-            int ironNuggetVault = data.getOrDefault(new NamespacedKey(plugin, "ironNuggetsVault"), PersistentDataType.INTEGER, 0);
-            if (ironNuggetVault < sellPrice) {
-                ChatUtils.sendErrorMessage(player, "Der Shop hat nicht genug Eisennuggets, um dich zu bezahlen.");
+            // Check if the shop has enough silver to pay the player
+            int silverVault = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
+            if (silverVault < sellPrice) {
+                ChatUtils.sendErrorMessage(player, "Der Shop hat nicht genug Silber, um dich zu bezahlen.");
                 return;
             }
 
             removeItems(player.getInventory(), shopItem, quantity);
-            player.getInventory().addItem(new ItemStack(Material.IRON_NUGGET, sellPrice));
+            ItemStack silverItem = SilverManager.get().placeholder();
+            silverItem.setAmount(sellPrice);
+            player.getInventory().addItem(silverItem);
             addItemsToChest(chest.getInventory(), shopItem, quantity);
-            data.set(new NamespacedKey(plugin, "ironNuggetsVault"), PersistentDataType.INTEGER, ironNuggetVault - sellPrice);
-            ChatUtils.sendSuccessMessage(player, "Du hast " + quantity + "x " + shopItem.getType().name() + " für " + sellPrice + " Eisennuggets verkauft.");
+            data.set(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, silverVault - sellPrice);
+            ChatUtils.sendSuccessMessage(player, "Du hast " + quantity + "x " + shopItem.getType().name() + " für " + sellPrice + " Silber verkauft.");
             sign.update();  // Ensures sign is updated after earnings change
         }
+    }
+
+    private boolean addItemsToPlayerInventory(Player player, ItemStack item, int quantity) {
+        Inventory playerInventory = player.getInventory();
+        if (item.getMaxStackSize() == 1) { // Non-stackable item
+            for (int i = 0; i < quantity; i++) {
+                ItemStack singleItem = item.clone();
+                singleItem.setAmount(1);
+                HashMap<Integer, ItemStack> leftover = playerInventory.addItem(singleItem);
+                if (!leftover.isEmpty()) {
+                    // Inventory is full
+                    addItemsToInventory(playerInventory, item, i); // Add items back
+                    return false;
+                }
+            }
+        } else { // Stackable item
+            ItemStack stackableItem = item.clone();
+            stackableItem.setAmount(quantity);
+            HashMap<Integer, ItemStack> leftover = playerInventory.addItem(stackableItem);
+            if (!leftover.isEmpty()) {
+                // Inventory is full
+                leftover.forEach((index, leftItem) -> {
+                    for (int i = 0; i < leftItem.getAmount(); i++) {
+                        playerInventory.addItem(new ItemStack(leftItem.getType(), 1));
+                    }
+                });
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void addItemsToInventory(Inventory inventory, ItemStack item, int quantity) {
+        ItemStack itemsToAdd = item.clone();
+        itemsToAdd.setAmount(quantity);
+        inventory.addItem(itemsToAdd);
     }
 
     private ItemStack getShopItem(PersistentDataContainer data) {
@@ -220,8 +290,8 @@ public class ShopListener implements Listener {
     }
 
     private void updateEarnings(PersistentDataContainer data, int buyPrice) {
-        int currentEarnings = data.getOrDefault(new NamespacedKey(plugin, "ironNuggetsVault"), PersistentDataType.INTEGER, 0);
-        data.set(new NamespacedKey(plugin, "ironNuggetsVault"), PersistentDataType.INTEGER, currentEarnings + buyPrice);
+        int currentEarnings = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
+        data.set(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, currentEarnings + buyPrice);
     }
 
     private int countItems(Inventory inventory, ItemStack item) {

@@ -50,11 +50,10 @@ jobs:
     - name: List files for debugging
       run: ls -al ./build
 
-    - name: Extract JAR file
+    - name: Move JAR file
       run: |
         mkdir -p ./build/libs
-        unzip ./build/build-jar.zip -d ./build/libs || true
-        mv ./build/build-jar/*.jar ./build/libs/
+        mv ./build/*.jar ./build/libs/
 
     - name: List files in libs for debugging
       run: ls -al ./build/libs

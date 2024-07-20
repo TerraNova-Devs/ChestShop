@@ -37,15 +37,16 @@ public class ShopDeletionListener implements Listener {
         UUID ownerUUID = UUID.fromString(data.get(new NamespacedKey(plugin, "owner"), PersistentDataType.STRING));
         if (!player.getUniqueId().equals(ownerUUID)) {
             event.setCancelled(true);
-            player.sendMessage(ChatUtils.returnRedFade("You do not own this shop!"));
+            ChatUtils.sendErrorMessage(player, "Du besitzt diesen Shop nicht!");
         } else {
             dropEarnings(event, data);
-            player.sendMessage(ChatUtils.returnYellowFade("You removed this shop!"));
+            ChatUtils.sendSuccessMessage(player, "Du hast diesen Shop entfernt!");
         }
     }
 
     private boolean isShopSign(Sign sign) {
-        return ((TextComponent) sign.getSide(Side.FRONT).lines().getFirst()).content().equalsIgnoreCase("[Shop]");
+        PersistentDataContainer data = sign.getPersistentDataContainer();
+        return data.has(new NamespacedKey(plugin, "shopItem"));
     }
 
     private void dropEarnings(BlockBreakEvent event, PersistentDataContainer data) {

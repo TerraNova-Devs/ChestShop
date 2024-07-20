@@ -45,7 +45,10 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-jar
-        path: ./build/libs
+        path: ./build
+
+    - name: Extract JAR file
+      run: unzip -j ./build/build-jar.zip "*.jar" -d ./build/libs/
 
     - name: List files for debugging
       run: ls -al ./build/libs

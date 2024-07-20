@@ -47,10 +47,16 @@ jobs:
         name: build-jar
         path: ./build
 
-    - name: Extract JAR file
-      run: unzip -j ./build/build-jar.zip "*.jar" -d ./build/libs/
-
     - name: List files for debugging
+      run: ls -al ./build
+
+    - name: Extract JAR file
+      run: |
+        mkdir -p ./build/libs
+        unzip ./build/build-jar.zip -d ./build/libs || true
+        mv ./build/build-jar/*.jar ./build/libs/
+
+    - name: List files in libs for debugging
       run: ls -al ./build/libs
 
     - name: Upload Release Asset

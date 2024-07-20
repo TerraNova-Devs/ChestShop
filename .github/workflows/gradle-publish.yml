@@ -51,9 +51,7 @@ jobs:
       run: ls -al ./build
 
     - name: Move JAR file
-      run: |
-        mkdir -p ./build/libs
-        mv ./build/*.jar ./build/libs/
+      run: mv ./build/*.jar ./build/libs/
 
     - name: List files in libs for debugging
       run: ls -al ./build/libs

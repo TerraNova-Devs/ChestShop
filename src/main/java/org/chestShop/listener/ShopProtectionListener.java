@@ -2,11 +2,7 @@ package org.chestShop.listener;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.block.Sign;
+import org.bukkit.block.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +12,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.chestShop.ChestShop;
@@ -126,6 +123,17 @@ public class ShopProtectionListener implements Listener {
             Block block = event.getTo().getBlock().getRelative(BlockFace.DOWN);
             if(block.getState() instanceof Chest chest && isShopChest(chest)) {
                 event.getVehicle().remove();
+            }
+        }
+    }
+
+    @EventHandler
+    public void onStructureGrow(StructureGrowEvent event) {
+        for (BlockState state : event.getBlocks()) {
+            Block block = state.getBlock();
+            if (block.getState() instanceof Chest || block.getState() instanceof Sign) {
+                event.setCancelled(true);
+                return;
             }
         }
     }

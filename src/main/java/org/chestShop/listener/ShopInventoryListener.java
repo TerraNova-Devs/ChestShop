@@ -43,11 +43,10 @@ public class ShopInventoryListener implements Listener {
         if (metadataValues.isEmpty()) {
             return;
         }
-
+        event.setCancelled(true);
         // Ensure GUI items cannot be moved
         int slot = event.getRawSlot();
         if (slot < event.getView().getTopInventory().getSize() && isGuiItem(event.getCurrentItem())) {
-            event.setCancelled(true);
             handleInventoryClick(event, player, metadataValues.get(0).value());
         }
     }

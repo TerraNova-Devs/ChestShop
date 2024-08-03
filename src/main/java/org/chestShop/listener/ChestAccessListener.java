@@ -56,6 +56,8 @@ public class ChestAccessListener implements Listener {
             return;
         }
 
+
+
         // If a sign is attached, check ownership
         boolean isOwner = isOwner(chest, player);
 
@@ -67,6 +69,9 @@ public class ChestAccessListener implements Listener {
             if (!isOwner) {
                 isOwner = isOwner(leftChest, player) || isOwner(rightChest, player);
             }
+            if(!isShopSign((Sign)getAttachedSign(leftChest.getBlock())) && !isShopSign((Sign)getAttachedSign(rightChest.getBlock()))) {
+                return;
+            }
         }
 
         if (!isOwner) {
@@ -76,23 +81,23 @@ public class ChestAccessListener implements Listener {
     }
 
     private boolean isOwner(Chest chest, Player player) {
-        Block attachedSignBlock = getAttachedSign(chest.getBlock());
-        if (attachedSignBlock == null || !(attachedSignBlock.getState() instanceof Sign sign) || !isShopSign(sign)) {
+        Sign attachedSignBlock = getAttachedSign(chest.getBlock());
+        if (attachedSignBlock == null || !isShopSign(attachedSignBlock)) {
             return false;
         }
 
-        PersistentDataContainer data = sign.getPersistentDataContainer();
+        PersistentDataContainer data = attachedSignBlock.getPersistentDataContainer();
         UUID ownerUUID = UUID.fromString(data.get(new NamespacedKey(plugin, "owner"), PersistentDataType.STRING));
 
         return player.getUniqueId().equals(ownerUUID);
     }
 
     private boolean isSignAttached(Chest chest) {
-        Block attachedSignBlock = getAttachedSign(chest.getBlock());
-        return attachedSignBlock != null && attachedSignBlock.getState() instanceof Sign;
+        Sign attachedSignBlock = getAttachedSign(chest.getBlock());
+        return attachedSignBlock != null;
     }
 
-    private Block getAttachedSign(Block chestBlock) {
+    private Sign getAttachedSign(Block chestBlock) {
         Block[] possibleSignPositions = {
                 chestBlock.getRelative(1, 0, 0),
                 chestBlock.getRelative(-1, 0, 0),
@@ -105,7 +110,7 @@ public class ChestAccessListener implements Listener {
                 org.bukkit.block.data.type.WallSign wallSign = (org.bukkit.block.data.type.WallSign) sign.getBlockData();
                 Block attached = block.getRelative(wallSign.getFacing().getOppositeFace());
                 if (attached.equals(chestBlock)) {
-                    return block;
+                    return sign;
                 }
             }
         }
@@ -114,6 +119,8 @@ public class ChestAccessListener implements Listener {
     }
 
     private boolean isShopSign(Sign sign) {
+        if (sign == null)
+            return false;
         PersistentDataContainer data = sign.getPersistentDataContainer();
         return data.has(new NamespacedKey(plugin, "shopItem"));
     }

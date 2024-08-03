@@ -53,6 +53,11 @@ public class ShopCreationListener implements Listener {
         String buyLine = ((TextComponent) event.lines().get(1)).content();
         String sellLine = ((TextComponent) event.lines().get(2)).content();
         int quantity = Integer.parseInt(((TextComponent) event.lines().get(3)).content());
+        if(quantity < 1){
+            ChatUtils.sendErrorMessage(player, "Die Anzahl muss mindestens 1 sein.");
+            event.lines().removeFirst();
+            return;
+        }
         if(quantity > 64){
             ChatUtils.sendErrorMessage(player, "Man kann nicht mehr als 64 als Anzahl angeben.");
             event.lines().removeFirst();
@@ -61,6 +66,11 @@ public class ShopCreationListener implements Listener {
         }
         int buyPrice = parsePrice(buyLine, "B:");
         int sellPrice = parsePrice(sellLine, "S:");
+
+        if(buyPrice < 0 || sellPrice < 0){
+
+            return;
+        }
 
         if (buyPrice == -1 && sellPrice == -1) {
             ChatUtils.sendErrorMessage(player, "Kein Preis angegeben.");

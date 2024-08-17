@@ -40,25 +40,22 @@ public class ChestAccessListener implements Listener {
         Chest chest = (Chest) block.getState();
         Player player = event.getPlayer();
 
-        // Check if a sign is attached to either part of the chest
-        boolean hasAttachedSign = isSignAttached(chest);
+        boolean hasShopSign = false;
 
         if (chest.getInventory() instanceof DoubleChestInventory) {
             DoubleChest doubleChest = (DoubleChest) chest.getInventory().getHolder();
             Chest leftChest = (Chest) doubleChest.getLeftSide();
             Chest rightChest = (Chest) doubleChest.getRightSide();
 
-            hasAttachedSign = isSignAttached(leftChest) || isSignAttached(rightChest);
+            hasShopSign = isShopSignAttached(leftChest) || isShopSignAttached(rightChest);
+        } else {
+            hasShopSign = isShopSignAttached(chest);
         }
 
-        // If no sign is attached, allow access
-        if (!hasAttachedSign) {
+        if (!hasShopSign) {
             return;
         }
 
-
-
-        // If a sign is attached, check ownership
         boolean isOwner = isOwner(chest, player);
 
         if (chest.getInventory() instanceof DoubleChestInventory) {
@@ -69,9 +66,6 @@ public class ChestAccessListener implements Listener {
             if (!isOwner) {
                 isOwner = isOwner(leftChest, player) || isOwner(rightChest, player);
             }
-            if(!isShopSign((Sign)getAttachedSign(leftChest.getBlock())) && !isShopSign((Sign)getAttachedSign(rightChest.getBlock()))) {
-                return;
-            }
         }
 
         if (!isOwner) {
@@ -79,6 +73,7 @@ public class ChestAccessListener implements Listener {
             ChatUtils.sendErrorMessage(player, "Du besitzt diesen Shop nicht!");
         }
     }
+
 
     private boolean isOwner(Chest chest, Player player) {
         Sign attachedSignBlock = getAttachedSign(chest.getBlock());
@@ -92,9 +87,9 @@ public class ChestAccessListener implements Listener {
         return player.getUniqueId().equals(ownerUUID);
     }
 
-    private boolean isSignAttached(Chest chest) {
+    private boolean isShopSignAttached(Chest chest) {
         Sign attachedSignBlock = getAttachedSign(chest.getBlock());
-        return attachedSignBlock != null;
+        return attachedSignBlock != null && isShopSign(attachedSignBlock);
     }
 
     private Sign getAttachedSign(Block chestBlock) {

@@ -2,6 +2,10 @@ name: ChestShop
 version: '1.0-SNAPSHOT'
 main: org.chestShop.ChestShop
 api-version: '1.21'
+authors: [Bastizeit, gerryxn]
+prefix: TerraNova
+website: mcterranova.de
+description: Plugin dedicated to economy.
 commands:
   generatesilver:
     description: Generates Silver for testing purposes.
@@ -11,3 +15,4 @@ permissions:
   chestshop.generatesilver:
     description: Allows the player to generate Silver for testing purposes.
     default: op
+depend: [Oraxen]

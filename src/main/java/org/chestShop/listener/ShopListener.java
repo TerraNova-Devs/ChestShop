@@ -1,5 +1,6 @@
 package org.chestShop.listener;
 
+import io.th0rgal.oraxen.api.OraxenItems;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.Component;
@@ -122,7 +123,7 @@ public class ShopListener implements Listener {
         withdrawItem.setItemMeta(withdrawMeta);
         shopInventory.setItem(10, withdrawItem);
 
-        ItemStack silver = SilverManager.get().placeholder();
+        ItemStack silver = OraxenItems.getItemById("terranova_silver").build();
         ItemMeta silverMeta = silver.getItemMeta();
         silverMeta.displayName(ChatUtils.returnYellowFade("Silber: " + silverCount));
         silver.setItemMeta(silverMeta);
@@ -148,7 +149,7 @@ public class ShopListener implements Listener {
         int buyPrice = data.getOrDefault(new NamespacedKey(plugin, "buyPrice"), PersistentDataType.INTEGER, 0);
         int sellPrice = data.getOrDefault(new NamespacedKey(plugin, "sellPrice"), PersistentDataType.INTEGER, 0);
         int quantity = data.getOrDefault(new NamespacedKey(plugin, "quantity"), PersistentDataType.INTEGER, 1);
-        ItemStack paymentItem = SilverManager.get().placeholder();
+        ItemStack paymentItem = OraxenItems.getItemById("terranova_silver").build();
         paymentItem.setAmount(buyPrice);
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {

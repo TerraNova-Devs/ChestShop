@@ -1,5 +1,6 @@
 package org.chestShop.listener;
 
+import io.th0rgal.oraxen.api.OraxenItems;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -77,7 +78,7 @@ public class ShopInventoryListener implements Listener {
             if (silverToWithdraw > 0) {
                 data.set(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, silverVault - silverToWithdraw);
                 sign.update();
-                ItemStack silverItem = SilverManager.get().placeholder();
+                ItemStack silverItem = OraxenItems.getItemById("terranova_silver").build();
                 silverItem.setAmount(silverToWithdraw);
                 player.getInventory().addItem(silverItem);
                 ChatUtils.sendSuccessMessage(player, "Du hast " + silverToWithdraw + " Silber abgehoben.");
@@ -85,11 +86,11 @@ public class ShopInventoryListener implements Listener {
                 ChatUtils.sendErrorMessage(player, "Nicht genug Silber im Tresor.");
             }
         } else if (clickedItem.getType() == Material.GREEN_WOOL) {
-            int playerSilver = countCustomItems(player.getInventory(), SilverManager.get().placeholder());
+            int playerSilver = countCustomItems(player.getInventory(), OraxenItems.getItemById("terranova_silver").build());
             int silverToDeposit = Math.min(16, playerSilver);
 
             if (silverToDeposit > 0) {
-                removeCustomItems(player.getInventory(), SilverManager.get().placeholder(), silverToDeposit);
+                removeCustomItems(player.getInventory(), OraxenItems.getItemById("terranova_silver").build(), silverToDeposit);
                 int silverVault = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
                 data.set(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, silverVault + silverToDeposit);
                 sign.update();
@@ -112,7 +113,7 @@ public class ShopInventoryListener implements Listener {
 
     private void updateSilverDisplay(PersistentDataContainer data, Inventory inventory) {
         int silverCount = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
-        ItemStack silver = SilverManager.get().placeholder();
+        ItemStack silver = OraxenItems.getItemById("terranova_silver").build();
         ItemMeta silverMeta = silver.getItemMeta();
         silverMeta.displayName(ChatUtils.returnYellowFade("Silber: " + silverCount));
         silver.setItemMeta(silverMeta);

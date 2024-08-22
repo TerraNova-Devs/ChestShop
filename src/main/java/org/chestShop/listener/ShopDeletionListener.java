@@ -1,5 +1,6 @@
 package org.chestShop.listener;
 
+import io.th0rgal.oraxen.api.OraxenItems;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -53,7 +54,7 @@ public class ShopDeletionListener implements Listener {
     private void dropEarnings(BlockBreakEvent event, PersistentDataContainer data) {
         Integer silverCount = data.get(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER);
         if (silverCount != null && silverCount > 0) {
-            ItemStack silver = SilverManager.get().placeholder();
+            ItemStack silver = OraxenItems.getItemById("terranova_silver").build();
             silver.setAmount(silverCount);
             event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), silver);
         }

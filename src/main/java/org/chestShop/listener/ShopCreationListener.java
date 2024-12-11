@@ -80,8 +80,8 @@ public class ShopCreationListener implements Listener {
             return;
         }
 
-        if (quantity > 64) {
-            Chat.sendErrorMessage(player, "Man kann nicht mehr als 64 als Anzahl angeben.");
+        if (quantity > 1024) {
+            Chat.sendErrorMessage(player, "Man kann nicht mehr als 1024 als Anzahl angeben.");
             event.lines().removeFirst();
             sign.update();
             return;

@@ -235,24 +235,4 @@ public class ShopProtectionListener implements Listener {
         UUID ownerUUID = UUID.fromString(data.get(new NamespacedKey(plugin, "owner"), PersistentDataType.STRING));
         return player.getUniqueId().equals(ownerUUID);
     }
-
-    private boolean isShopOwner(Chest chest, Player player) {
-        if (chest.getInventory() instanceof DoubleChest doubleChest) {
-            Chest leftChest = (Chest) doubleChest.getLeftSide();
-            Chest rightChest = (Chest) doubleChest.getRightSide();
-            return isShopOwner(leftChest.getBlock(), player) || isShopOwner(rightChest.getBlock(), player);
-        } else {
-            return isShopOwner(chest.getBlock(), player);
-        }
-    }
-
-    private boolean isShopOwner(Block block, Player player) {
-        for (BlockFace face : BlockFace.values()) {
-            Block relative = block.getRelative(face);
-            if (relative.getState() instanceof Sign sign && isShopSign(sign)) {
-                return isShopOwner(sign, player);
-            }
-        }
-        return false;
-    }
 }

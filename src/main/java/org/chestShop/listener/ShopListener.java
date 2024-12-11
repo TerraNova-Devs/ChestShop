@@ -2,14 +2,8 @@ package org.chestShop.listener;
 
 import de.mcterranova.terranovaLib.utils.Chat;
 import io.th0rgal.oraxen.api.OraxenItems;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.DataComponentValue;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -70,6 +64,7 @@ public class ShopListener implements Listener {
 
     private void handlePreviewItem(PlayerInteractEvent event, Player player, PersistentDataContainer data){
         ItemStack shopItem = getShopItem(data);
+        shopItem.setAmount(1);
 
         Component itemComponent = Component.text("[").color(TextColor.color(0x00FF00))
                 .append(shopItem.getItemMeta().hasDisplayName() ? shopItem.getItemMeta().displayName() : Component.text(shopItem.getType().name()))
@@ -153,14 +148,18 @@ public class ShopListener implements Listener {
                 return;
             }
 
-            chest.getInventory().removeItem(shopItem);
-
             if (!player.getInventory().containsAtLeast(paymentItem, paymentItem.getAmount())) {
                 Chat.sendErrorMessage(player, "Du hast nicht genug Zahlungsartikel.");
                 chest.getInventory().addItem(shopItem);
                 return;
             }
 
+            if(!hasEnoughSpace(player.getInventory(),shopItem)){
+                Chat.sendErrorMessage(player, "Du hast nicht genug Platz im Inventar.");
+                return;
+            }
+
+            chest.getInventory().removeItem(shopItem);
             player.getInventory().removeItem(paymentItem);
             if (!addItemsToPlayerInventory(player, shopItem, quantity)) {
                 Chat.sendErrorMessage(player, "Der Artikel konnte nicht deinem Inventar hinzugefügt werden. Bitte überprüfe deinen Inventarplatz.");
@@ -221,17 +220,21 @@ public class ShopListener implements Listener {
                 }
             }
         } else { // Stackable item
-            ItemStack stackableItem = item.clone();
-            stackableItem.setAmount(quantity);
-            HashMap<Integer, ItemStack> leftover = playerInventory.addItem(stackableItem);
-            if (!leftover.isEmpty()) {
-                // Inventory is full
-                leftover.forEach((index, leftItem) -> {
-                    for (int i = 0; i < leftItem.getAmount(); i++) {
-                        playerInventory.addItem(new ItemStack(leftItem.getType(), 1));
-                    }
-                });
-                return false;
+            int stackSize = item.getMaxStackSize();
+            for(int i = 0; i < quantity; i = i + stackSize) {
+                ItemStack stackableItem = item.clone();
+                stackableItem.setAmount(stackSize);
+                HashMap<Integer, ItemStack> leftover = playerInventory.addItem(stackableItem);
+
+                if (!leftover.isEmpty()) {
+                    // Inventory is full
+                    leftover.forEach((index, leftItem) -> {
+                        for (int f = 0; f < leftItem.getAmount(); f++) {
+                            playerInventory.addItem(new ItemStack(leftItem.getType(), 1));
+                        }
+                    });
+                    return false;
+                }
             }
         }
         return true;

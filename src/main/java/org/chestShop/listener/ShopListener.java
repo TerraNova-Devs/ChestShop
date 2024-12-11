@@ -92,32 +92,105 @@ public class ShopListener implements Listener {
         int chestZ = data.getOrDefault(new NamespacedKey(plugin, "chestZ"), PersistentDataType.INTEGER, 0);
         return world.getBlockAt(chestX, chestY, chestZ);
     }
-
     private void handleOwnerInteract(PlayerInteractEvent event, Player player, Sign sign, PersistentDataContainer data, Chest chest) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Inventory shopInventory = InventoryHelper.createStyledInventory(27, "Eigener Shop");
+            // Changed from 27 to 54 to have enough room for controls
+            Inventory shopInventory = InventoryHelper.createStyledInventory(54, "Eigener Shop");
+
+            // First, add the vault and chest management items as before
             addVaultToInventory(data, shopInventory);
             addChestContentsToInventory(shopInventory);
-            player.openInventory(shopInventory);
+
+            // Now add the shop controls (buy/sell price, quantity, and item type)
+            addShopControlsToInventory(data, shopInventory);
+
+            InventoryHelper.fillInventory(shopInventory);
+            // Set metadata and open inventory
             player.setMetadata("shopSign", new FixedMetadataValue(plugin, sign.getLocation()));
+            player.openInventory(shopInventory);
         }
+    }
+
+    private void addShopControlsToInventory(PersistentDataContainer data, Inventory inv) {
+        int buyPrice = data.getOrDefault(new NamespacedKey(plugin, "buyPrice"), PersistentDataType.INTEGER, 0);
+        int sellPrice = data.getOrDefault(new NamespacedKey(plugin, "sellPrice"), PersistentDataType.INTEGER, 0);
+        int quantity = data.getOrDefault(new NamespacedKey(plugin, "quantity"), PersistentDataType.INTEGER, 1);
+        String itemType = data.getOrDefault(new NamespacedKey(plugin, "shopItem"), PersistentDataType.STRING, Material.STONE.name());
+
+        // --- Buy Price Controls ---
+        inv.setItem(37, createControlItem(Material.RED_WOOL, "- Kauf Preis (B)"));
+        inv.setItem(38, createMoneyItem("Kauf Preis (B): " + buyPrice));
+        inv.setItem(39, createControlItem(Material.GREEN_WOOL, "+ Kauf Preis (B)"));
+
+        // --- Sell Price Controls ---
+        inv.setItem(28, createControlItem(Material.RED_WOOL, "- Verkauf Preis (S)"));
+        inv.setItem(29, createMoneyItem("Verkauf Preis (S): " + sellPrice));
+        inv.setItem(30, createControlItem(Material.GREEN_WOOL, "+ Verkauf Preis (S)"));
+
+        // --- Quantity Controls ---
+        inv.setItem(19, createControlItem(Material.RED_WOOL, "- Anzahl"));
+        inv.setItem(20, createDisplayItem("Anzahl: " + quantity));
+        inv.setItem(21, createControlItem(Material.GREEN_WOOL, "+ Anzahl"));
+
+        // --- Current Item Display ---
+        Material mat = Material.getMaterial(itemType.toUpperCase());
+        if (mat == null) mat = Material.STONE;
+        ItemStack currentItem = new ItemStack(mat);
+        ItemMeta ciMeta = currentItem.getItemMeta();
+        ciMeta.displayName(Chat.blueFade("Aktuelles Verkaufsitem"));
+        currentItem.setItemMeta(ciMeta);
+        inv.setItem(42, currentItem);
+
+        // --- Item Change Slot ---
+        ItemStack changeItemSlot = new ItemStack(Material.HOPPER);
+        ItemMeta chMeta = changeItemSlot.getItemMeta();
+        chMeta.displayName(Chat.blueFade("Neues Item hier platzieren"));
+        changeItemSlot.setItemMeta(chMeta);
+        inv.setItem(43, changeItemSlot);
+    }
+
+    private ItemStack createControlItem(Material mat, String name) {
+        ItemStack item = new ItemStack(mat);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Chat.blueFade(name));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private ItemStack createMoneyItem(String name) {
+        ItemStack item = OraxenItems.getItemById("terranova_silver").build();
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Chat.blueFade(name));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private ItemStack createDisplayItem(String name) {
+        ItemStack item = new ItemStack(Material.PAPER);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Chat.blueFade(name));
+        item.setItemMeta(meta);
+        return item;
     }
 
     private void addVaultToInventory(PersistentDataContainer data, Inventory shopInventory) {
         int silverCount = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
 
+        // Withdraw (RED_WOOL)
         ItemStack withdrawItem = new ItemStack(Material.RED_WOOL);
         ItemMeta withdrawMeta = withdrawItem.getItemMeta();
         withdrawMeta.displayName(Chat.redFade("Bis zu 16 Silber abheben"));
         withdrawItem.setItemMeta(withdrawMeta);
         shopInventory.setItem(10, withdrawItem);
 
+        // Silver display
         ItemStack silver = OraxenItems.getItemById("terranova_silver").build();
         ItemMeta silverMeta = silver.getItemMeta();
         silverMeta.displayName(Chat.yellowFade("Silber: " + silverCount));
         silver.setItemMeta(silverMeta);
         shopInventory.setItem(11, silver);
 
+        // Deposit (GREEN_WOOL)
         ItemStack depositItem = new ItemStack(Material.GREEN_WOOL);
         ItemMeta depositMeta = depositItem.getItemMeta();
         depositMeta.displayName(Chat.greenFade("Bis zu 16 Silber einzahlen"));
@@ -126,6 +199,7 @@ public class ShopListener implements Listener {
     }
 
     private void addChestContentsToInventory(Inventory shopInventory) {
+        // Place the chest somewhere near the vault items, say at slot 23
         ItemStack chestContents = new ItemStack(Material.CHEST);
         ItemMeta meta = chestContents.getItemMeta();
         meta.displayName(Chat.greenFade("Truheninhalte verwalten"));

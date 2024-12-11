@@ -71,4 +71,12 @@ public class InventoryHelper {
             throw new IllegalStateException("Unable to load item stacks.", e);
         }
     }
+
+    public static Inventory fillInventory(Inventory inventory){
+        for(int i = 0; i < inventory.getSize(); i++){
+            if(inventory.getItem(i) == null)
+                inventory.setItem(i, createGlassPane());
+        }
+        return inventory;
+    }
 }

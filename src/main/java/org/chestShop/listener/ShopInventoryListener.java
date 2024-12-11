@@ -1,5 +1,6 @@
 package org.chestShop.listener;
 
+import de.mcterranova.terranovaLib.utils.Chat;
 import io.th0rgal.oraxen.api.OraxenItems;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,8 +21,6 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.chestShop.ChestShop;
-import org.chestShop.utils.ChatUtils;
-import org.chestShop.utils.silver.SilverManager;
 
 import java.util.List;
 
@@ -81,9 +80,9 @@ public class ShopInventoryListener implements Listener {
                 ItemStack silverItem = OraxenItems.getItemById("terranova_silver").build();
                 silverItem.setAmount(silverToWithdraw);
                 player.getInventory().addItem(silverItem);
-                ChatUtils.sendSuccessMessage(player, "Du hast " + silverToWithdraw + " Silber abgehoben.");
+                Chat.sendSuccessMessage(player, "Du hast " + silverToWithdraw + " Silber abgehoben.");
             } else {
-                ChatUtils.sendErrorMessage(player, "Nicht genug Silber im Tresor.");
+                Chat.sendErrorMessage(player, "Nicht genug Silber im Tresor.");
             }
         } else if (clickedItem.getType() == Material.GREEN_WOOL) {
             int playerSilver = countCustomItems(player.getInventory(), OraxenItems.getItemById("terranova_silver").build());
@@ -94,14 +93,14 @@ public class ShopInventoryListener implements Listener {
                 int silverVault = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
                 data.set(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, silverVault + silverToDeposit);
                 sign.update();
-                ChatUtils.sendSuccessMessage(player, "Du hast " + silverToDeposit + " Silber in den Tresor eingezahlt.");
+                Chat.sendSuccessMessage(player, "Du hast " + silverToDeposit + " Silber in den Tresor eingezahlt.");
             } else {
-                ChatUtils.sendErrorMessage(player, "Du hast nicht genug Silber zum Einzahlen.");
+                Chat.sendErrorMessage(player, "Du hast nicht genug Silber zum Einzahlen.");
             }
         } else if (clickedItem.getType() == Material.CHEST){
             Block chestBlock = getChestBlock(data, player.getWorld());
             if (!(chestBlock.getState() instanceof Chest chest)) {
-                ChatUtils.sendErrorMessage(player, "Keine Truhe für diesen Shop gefunden!");
+                Chat.sendErrorMessage(player, "Keine Truhe für diesen Shop gefunden!");
                 return;
             }
             player.openInventory(chest.getInventory());
@@ -115,7 +114,7 @@ public class ShopInventoryListener implements Listener {
         int silverCount = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
         ItemStack silver = OraxenItems.getItemById("terranova_silver").build();
         ItemMeta silverMeta = silver.getItemMeta();
-        silverMeta.displayName(ChatUtils.returnYellowFade("Silber: " + silverCount));
+        silverMeta.displayName(Chat.yellowFade("Silber: " + silverCount));
         silver.setItemMeta(silverMeta);
         inventory.setItem(11, silver);
     }

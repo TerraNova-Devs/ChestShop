@@ -1,11 +1,12 @@
 package org.chestShop.commands;
 
+import de.mcterranova.terranovaLib.utils.Chat;
+import io.th0rgal.oraxen.api.OraxenItems;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.chestShop.utils.ChatUtils;
-import org.chestShop.utils.silver.SilverManager;
+import org.bukkit.inventory.ItemStack;
 
 public class GenerateSilverCommand implements CommandExecutor {
 
@@ -19,13 +20,14 @@ public class GenerateSilverCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         if (!player.hasPermission("chestshop.generatesilver")) {
-            ChatUtils.sendErrorMessage(player, "You do not have permission to use this command.");
+            Chat.sendErrorMessage(player, "You do not have permission to use this command.");
             return true;
         }
 
         // Give the player Silver items
-        player.getInventory().addItem(SilverManager.get().placeholder());
-        ChatUtils.sendSuccessMessage(player, "You have been given Silver.");
+        ItemStack silverItem = OraxenItems.getItemById("terranova_silver").build();
+        player.getInventory().addItem(silverItem);
+        Chat.sendSuccessMessage(player, "You have been given Silver.");
 
         return true;
     }

@@ -1,5 +1,6 @@
 package org.chestShop.helper;
 
+import de.mcterranova.terranovaLib.utils.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -7,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.chestShop.utils.ChatUtils;
+import org.chestShop.utils.Chat;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,7 +19,7 @@ import java.util.Base64;
 public class InventoryHelper {
 
     public static Inventory createStyledInventory(int size, String title) {
-        Inventory inv = Bukkit.createInventory(null, size, ChatUtils.stringToComponent(title));
+        Inventory inv = Bukkit.createInventory(null, size, Chat.stringToComponent(title));
         styleInventory(inv);
         return inv;
     }
@@ -35,7 +36,7 @@ public class InventoryHelper {
     private static ItemStack createGlassPane() {
         ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta meta = glassPane.getItemMeta();
-        meta.displayName(ChatUtils.stringToComponent(""));
+        meta.displayName(Chat.stringToComponent(""));
         glassPane.setItemMeta(meta);
         return glassPane;
     }

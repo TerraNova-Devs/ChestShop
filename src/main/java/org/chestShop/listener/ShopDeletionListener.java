@@ -1,12 +1,10 @@
 package org.chestShop.listener;
 
+import de.mcterranova.terranovaLib.utils.Chat;
 import io.th0rgal.oraxen.api.OraxenItems;
-import net.kyori.adventure.text.TextComponent;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,8 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.chestShop.ChestShop;
-import org.chestShop.utils.ChatUtils;
-import org.chestShop.utils.silver.SilverManager;
 
 import java.util.UUID;
 
@@ -39,10 +35,10 @@ public class ShopDeletionListener implements Listener {
         UUID ownerUUID = UUID.fromString(data.get(new NamespacedKey(plugin, "owner"), PersistentDataType.STRING));
         if (!player.getUniqueId().equals(ownerUUID)) {
             event.setCancelled(true);
-            ChatUtils.sendErrorMessage(player, "Du besitzt diesen Shop nicht!");
+            Chat.sendErrorMessage(player, "Du besitzt diesen Shop nicht!");
         } else {
             dropEarnings(event, data);
-            ChatUtils.sendSuccessMessage(player, "Du hast diesen Shop entfernt!");
+            Chat.sendSuccessMessage(player, "Du hast diesen Shop entfernt!");
         }
     }
 

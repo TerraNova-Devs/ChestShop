@@ -1,5 +1,6 @@
 package org.chestShop.listener;
 
+import de.mcterranova.terranovaLib.utils.Chat;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -14,7 +15,6 @@ import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.chestShop.ChestShop;
-import org.chestShop.utils.ChatUtils;
 
 import java.util.UUID;
 
@@ -70,7 +70,7 @@ public class ChestAccessListener implements Listener {
 
         if (!isOwner) {
             event.setCancelled(true);
-            ChatUtils.sendErrorMessage(player, "Du besitzt diesen Shop nicht!");
+            Chat.sendErrorMessage(player, "Du besitzt diesen Shop nicht!");
         }
     }
 

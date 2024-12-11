@@ -1,5 +1,6 @@
 package org.chestShop.listener;
 
+import de.mcterranova.terranovaLib.utils.Chat;
 import io.th0rgal.oraxen.api.OraxenItems;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
@@ -24,17 +25,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.chestShop.ChestShop;
 import org.chestShop.helper.InventoryHelper;
-import org.chestShop.utils.ChatUtils;
-import org.chestShop.utils.silver.SilverManager;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class ShopListener implements Listener {
@@ -58,7 +52,7 @@ public class ShopListener implements Listener {
 
         Block chestBlock = getChestBlock(data, player.getWorld());
         if (!(chestBlock.getState() instanceof Chest chest)) {
-            ChatUtils.sendErrorMessage(player, "Keine Truhe für diesen Shop gefunden!");
+            Chat.sendErrorMessage(player, "Keine Truhe für diesen Shop gefunden!");
             return;
         }
 
@@ -119,19 +113,19 @@ public class ShopListener implements Listener {
 
         ItemStack withdrawItem = new ItemStack(Material.RED_WOOL);
         ItemMeta withdrawMeta = withdrawItem.getItemMeta();
-        withdrawMeta.displayName(ChatUtils.returnRedFade("Bis zu 16 Silber abheben"));
+        withdrawMeta.displayName(Chat.redFade("Bis zu 16 Silber abheben"));
         withdrawItem.setItemMeta(withdrawMeta);
         shopInventory.setItem(10, withdrawItem);
 
         ItemStack silver = OraxenItems.getItemById("terranova_silver").build();
         ItemMeta silverMeta = silver.getItemMeta();
-        silverMeta.displayName(ChatUtils.returnYellowFade("Silber: " + silverCount));
+        silverMeta.displayName(Chat.yellowFade("Silber: " + silverCount));
         silver.setItemMeta(silverMeta);
         shopInventory.setItem(11, silver);
 
         ItemStack depositItem = new ItemStack(Material.GREEN_WOOL);
         ItemMeta depositMeta = depositItem.getItemMeta();
-        depositMeta.displayName(ChatUtils.returnGreenFade("Bis zu 16 Silber einzahlen"));
+        depositMeta.displayName(Chat.greenFade("Bis zu 16 Silber einzahlen"));
         depositItem.setItemMeta(depositMeta);
         shopInventory.setItem(12, depositItem);
     }
@@ -139,7 +133,7 @@ public class ShopListener implements Listener {
     private void addChestContentsToInventory(Inventory shopInventory) {
         ItemStack chestContents = new ItemStack(Material.CHEST);
         ItemMeta meta = chestContents.getItemMeta();
-        meta.displayName(ChatUtils.returnGreenFade("Truheninhalte verwalten"));
+        meta.displayName(Chat.greenFade("Truheninhalte verwalten"));
         chestContents.setItemMeta(meta);
         shopInventory.setItem(16, chestContents);
     }
@@ -155,61 +149,61 @@ public class ShopListener implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             shopItem.setAmount(quantity);
             if (!containsMatchingItem(chest.getInventory(), shopItem)) {
-                ChatUtils.sendErrorMessage(player, "Die Truhe enthält nicht genug Waren.");
+                Chat.sendErrorMessage(player, "Die Truhe enthält nicht genug Waren.");
                 return;
             }
 
             chest.getInventory().removeItem(shopItem);
 
             if (!player.getInventory().containsAtLeast(paymentItem, paymentItem.getAmount())) {
-                ChatUtils.sendErrorMessage(player, "Du hast nicht genug Zahlungsartikel.");
+                Chat.sendErrorMessage(player, "Du hast nicht genug Zahlungsartikel.");
                 chest.getInventory().addItem(shopItem);
                 return;
             }
 
             player.getInventory().removeItem(paymentItem);
             if (!addItemsToPlayerInventory(player, shopItem, quantity)) {
-                ChatUtils.sendErrorMessage(player, "Der Artikel konnte nicht deinem Inventar hinzugefügt werden. Bitte überprüfe deinen Inventarplatz.");
+                Chat.sendErrorMessage(player, "Der Artikel konnte nicht deinem Inventar hinzugefügt werden. Bitte überprüfe deinen Inventarplatz.");
                 addItemsToInventory(chest.getInventory(), shopItem, quantity);
             } else {
-                ChatUtils.sendSuccessMessage(player, "Du hast " + quantity + "x " + shopItem.getType().name() + " für " + buyPrice + " Silber gekauft.");
+                Chat.sendSuccessMessage(player, "Du hast " + quantity + "x " + shopItem.getType().name() + " für " + buyPrice + " Silber gekauft.");
                 updateEarnings(data, buyPrice);
                 sign.update();  // Ensures sign is updated after earnings change
             }
         } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
             if (sellPrice <= 0) {
-                ChatUtils.sendErrorMessage(player, "Dieser Shop kauft keine Artikel.");
+                Chat.sendErrorMessage(player, "Dieser Shop kauft keine Artikel.");
                 return;
             }
 
             shopItem.setAmount(quantity);
             int itemCount = countItems(player.getInventory(), shopItem);
             if (itemCount < quantity) {
-                ChatUtils.sendErrorMessage(player, "Du hast nicht genug Artikel zu verkaufen.");
+                Chat.sendErrorMessage(player, "Du hast nicht genug Artikel zu verkaufen.");
                 return;
             }
 
             // Check if the chest has enough space to store the sold items
             if (!hasEnoughSpace(chest.getInventory(), shopItem)) {
-                ChatUtils.sendErrorMessage(player, "Die Truhe des Shops ist voll.");
+                Chat.sendErrorMessage(player, "Die Truhe des Shops ist voll.");
                 return;
             }
 
             // Check if the shop has enough silver to pay the player
             int silverVault = data.getOrDefault(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, 0);
             if (silverVault < sellPrice) {
-                ChatUtils.sendErrorMessage(player, "Der Shop hat nicht genug Silber, um dich zu bezahlen.");
+                Chat.sendErrorMessage(player, "Der Shop hat nicht genug Silber, um dich zu bezahlen.");
                 return;
             }
 
             removeItems(player.getInventory(), shopItem, quantity);
-            ItemStack silverItem = SilverManager.get().placeholder();
+            ItemStack silverItem = OraxenItems.getItemById("terranova_silver").build();
             silverItem.setAmount(sellPrice);
             player.getInventory().addItem(silverItem);
             addItemsToChest(chest.getInventory(), shopItem, quantity);
             data.set(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER, silverVault - sellPrice);
-            ChatUtils.sendSuccessMessage(player, "Du hast " + quantity + "x " + shopItem.getType().name() + " für " + sellPrice + " Silber verkauft.");
-            sign.update();  // Ensures sign is updated after earnings change
+            Chat.sendSuccessMessage(player, "Du hast " + quantity + "x " + shopItem.getType().name() + " für " + sellPrice + " Silber verkauft.");
+            sign.update();
         }
     }
 

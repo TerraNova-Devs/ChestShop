@@ -1,5 +1,6 @@
 package org.chestShop.listener;
 
+import de.mcterranova.terranovaLib.utils.Chat;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -16,7 +17,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.chestShop.ChestShop;
 import org.chestShop.helper.InventoryHelper;
-import org.chestShop.utils.ChatUtils;
 
 import java.util.UUID;
 
@@ -40,14 +40,14 @@ public class ShopCreationListener implements Listener {
         Block attachedBlock = block.getRelative(((org.bukkit.block.data.type.WallSign) block.getBlockData()).getFacing().getOppositeFace());
 
         if (!(attachedBlock.getState() instanceof Chest chest)) {
-            ChatUtils.sendErrorMessage(player, "Keine Truhe hinter dem Schild gefunden!");
+            Chat.sendErrorMessage(player, "Keine Truhe hinter dem Schild gefunden!");
             event.lines().removeFirst();
             sign.update();
             return;
         }
 
         if (isAnotherShopSignAttached(chest)) {
-            ChatUtils.sendErrorMessage(player, "Es existiert bereits ein Shop-Schild an dieser Truhe!");
+            Chat.sendErrorMessage(player, "Es existiert bereits ein Shop-Schild an dieser Truhe!");
             event.lines().removeFirst();
             sign.update();
             return;
@@ -64,7 +64,7 @@ public class ShopCreationListener implements Listener {
         }
 
         if (shopItem == null) {
-            ChatUtils.sendErrorMessage(player, "Die Truhe ist leer.");
+            Chat.sendErrorMessage(player, "Die Truhe ist leer.");
             event.lines().removeFirst();
             sign.update();
             return;
@@ -75,13 +75,13 @@ public class ShopCreationListener implements Listener {
         int quantity = Integer.parseInt(((TextComponent) event.lines().get(3)).content());
 
         if (quantity < 1) {
-            ChatUtils.sendErrorMessage(player, "Die Anzahl muss mindestens 1 sein.");
+            Chat.sendErrorMessage(player, "Die Anzahl muss mindestens 1 sein.");
             event.lines().removeFirst();
             return;
         }
 
         if (quantity > 64) {
-            ChatUtils.sendErrorMessage(player, "Man kann nicht mehr als 64 als Anzahl angeben.");
+            Chat.sendErrorMessage(player, "Man kann nicht mehr als 64 als Anzahl angeben.");
             event.lines().removeFirst();
             sign.update();
             return;
@@ -91,7 +91,7 @@ public class ShopCreationListener implements Listener {
         int sellPrice = parsePrice(sellLine, "S:");
 
         if (buyPrice == -1 && sellPrice == -1) {
-            ChatUtils.sendErrorMessage(player, "Kein Preis angegeben.");
+            Chat.sendErrorMessage(player, "Kein Preis angegeben.");
             event.lines().removeFirst();
             sign.update();
             return;
@@ -166,10 +166,10 @@ public class ShopCreationListener implements Listener {
 
 
     private void updateSign(SignChangeEvent event, String playerName, String fullPricesString, String itemType, int quantity) {
-        event.lines().set(0, ChatUtils.stringToComponent(playerName));
-        event.lines().set(1, ChatUtils.stringToComponent(fullPricesString));
-        event.lines().set(2, ChatUtils.stringToComponent(itemType));
-        event.lines().set(3, ChatUtils.stringToComponent(quantity + ""));
+        event.lines().set(0, Chat.stringToComponent(playerName));
+        event.lines().set(1, Chat.stringToComponent(fullPricesString));
+        event.lines().set(2, Chat.stringToComponent(itemType));
+        event.lines().set(3, Chat.stringToComponent(quantity + ""));
     }
 
     private void saveShopData(Sign sign, int buyPrice, int sellPrice, int quantity, ItemStack shopItem, UUID ownerUUID, Block attachedBlock) {

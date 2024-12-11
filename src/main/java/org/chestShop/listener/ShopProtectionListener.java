@@ -1,5 +1,6 @@
 package org.chestShop.listener;
 
+import de.mcterranova.terranovaLib.utils.Chat;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.*;
@@ -16,7 +17,6 @@ import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.chestShop.ChestShop;
-import org.chestShop.utils.ChatUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +37,7 @@ public class ShopProtectionListener implements Listener {
             if ((blockBelow.getState() instanceof Chest chestBelow && isShopChest(chestBelow)) ||
                     (blockAbove.getState() instanceof Chest chestAbove && isShopChest(chestAbove))) {
                 event.setCancelled(true);
-                ChatUtils.sendErrorMessage(event.getPlayer(), "You cannot place hoppers near shop chests.");
+                Chat.sendErrorMessage(event.getPlayer(), "You cannot place hoppers near shop chests.");
             }
         }
     }
@@ -50,7 +50,7 @@ public class ShopProtectionListener implements Listener {
                 Player player = event.getPlayer();
                 if (!isShopOwner(sign, player)) {
                     event.setCancelled(true);
-                    ChatUtils.sendErrorMessage(player, "You do not own this shop.");
+                    Chat.sendErrorMessage(player, "You do not own this shop.");
                 }
             }
         } else if (block.getState() instanceof Chest chest) {
@@ -58,7 +58,7 @@ public class ShopProtectionListener implements Listener {
                 Player player = event.getPlayer();
                 if (!isShopOwner(chest, player)) {
                     event.setCancelled(true);
-                    ChatUtils.sendErrorMessage(player, "You do not own this shop.");
+                    Chat.sendErrorMessage(player, "You do not own this shop.");
                 }
             }
         }

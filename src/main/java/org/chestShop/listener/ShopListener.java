@@ -223,8 +223,7 @@ public class ShopListener implements Listener {
             }
 
             if (!player.getInventory().containsAtLeast(paymentItem, paymentItem.getAmount())) {
-                Chat.sendErrorMessage(player, "Du hast nicht genug Zahlungsartikel.");
-                chest.getInventory().addItem(shopItem);
+                Chat.sendErrorMessage(player, "Du hast nicht genug Silber.");
                 return;
             }
 

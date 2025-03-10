@@ -216,6 +216,11 @@ public class ShopListener implements Listener {
         paymentItem.setAmount(buyPrice);
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if(buyPrice < 0){
+                Chat.sendErrorMessage(player, "Dieser Shop verkauft keine Artikel.");
+                return;
+            }
+
             shopItem.setAmount(quantity);
             if (!containsMatchingItem(chest.getInventory(), shopItem)) {
                 Chat.sendErrorMessage(player, "Die Truhe enthält nicht genug Waren.");
@@ -296,7 +301,11 @@ public class ShopListener implements Listener {
             int stackSize = item.getMaxStackSize();
             for(int i = 0; i < quantity; i = i + stackSize) {
                 ItemStack stackableItem = item.clone();
-                stackableItem.setAmount(stackSize);
+                if(quantity < stackSize) {
+                    stackableItem.setAmount(quantity);
+                } else {
+                    stackableItem.setAmount(stackSize);
+                }
                 HashMap<Integer, ItemStack> leftover = playerInventory.addItem(stackableItem);
 
                 if (!leftover.isEmpty()) {

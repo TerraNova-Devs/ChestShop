@@ -1,7 +1,7 @@
 package org.chestShop.commands;
 
+import com.nexomc.nexo.api.NexoItems;
 import de.mcterranova.terranovaLib.utils.Chat;
-import io.th0rgal.oraxen.api.OraxenItems;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,7 +25,7 @@ public class GenerateSilverCommand implements CommandExecutor {
         }
 
         // Give the player Silver items
-        ItemStack silverItem = OraxenItems.getItemById("terranova_silver").build();
+        ItemStack silverItem = NexoItems.itemFromId("terranova_silver").build();
         player.getInventory().addItem(silverItem);
         Chat.sendSuccessMessage(player, "You have been given Silver.");
 

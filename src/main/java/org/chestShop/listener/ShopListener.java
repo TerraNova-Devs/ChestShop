@@ -1,7 +1,7 @@
 package org.chestShop.listener;
 
+import com.nexomc.nexo.api.NexoItems;
 import de.mcterranova.terranovaLib.utils.Chat;
-import io.th0rgal.oraxen.api.OraxenItems;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
@@ -158,7 +158,7 @@ public class ShopListener implements Listener {
     }
 
     private ItemStack createMoneyItem(String name) {
-        ItemStack item = OraxenItems.getItemById("terranova_silver").build();
+        ItemStack item = NexoItems.itemFromId("terranova_silver").build();
         ItemMeta meta = item.getItemMeta();
         meta.displayName(Chat.blueFade(name));
         item.setItemMeta(meta);
@@ -184,7 +184,7 @@ public class ShopListener implements Listener {
         shopInventory.setItem(10, withdrawItem);
 
         // Silver display
-        ItemStack silver = OraxenItems.getItemById("terranova_silver").build();
+        ItemStack silver = NexoItems.itemFromId("terranova_silver").build();
         ItemMeta silverMeta = silver.getItemMeta();
         silverMeta.displayName(Chat.yellowFade("Silber: " + silverCount));
         silver.setItemMeta(silverMeta);
@@ -212,7 +212,7 @@ public class ShopListener implements Listener {
         int buyPrice = data.getOrDefault(new NamespacedKey(plugin, "buyPrice"), PersistentDataType.INTEGER, 0);
         int sellPrice = data.getOrDefault(new NamespacedKey(plugin, "sellPrice"), PersistentDataType.INTEGER, 0);
         int quantity = data.getOrDefault(new NamespacedKey(plugin, "quantity"), PersistentDataType.INTEGER, 1);
-        ItemStack paymentItem = OraxenItems.getItemById("terranova_silver").build();
+        ItemStack paymentItem = NexoItems.itemFromId("terranova_silver").build();
         paymentItem.setAmount(buyPrice);
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -274,7 +274,7 @@ public class ShopListener implements Listener {
             }
 
             removeItems(player.getInventory(), shopItem, quantity);
-            ItemStack silverItem = OraxenItems.getItemById("terranova_silver").build();
+            ItemStack silverItem = NexoItems.itemFromId("terranova_silver").build();
             silverItem.setAmount(sellPrice);
             player.getInventory().addItem(silverItem);
             addItemsToChest(chest.getInventory(), shopItem, quantity);

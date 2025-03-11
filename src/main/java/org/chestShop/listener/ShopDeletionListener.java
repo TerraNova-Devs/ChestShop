@@ -1,7 +1,7 @@
 package org.chestShop.listener;
 
+import com.nexomc.nexo.api.NexoItems;
 import de.mcterranova.terranovaLib.utils.Chat;
-import io.th0rgal.oraxen.api.OraxenItems;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -50,7 +50,7 @@ public class ShopDeletionListener implements Listener {
     private void dropEarnings(BlockBreakEvent event, PersistentDataContainer data) {
         Integer silverCount = data.get(new NamespacedKey(plugin, "silverVault"), PersistentDataType.INTEGER);
         if (silverCount != null && silverCount > 0) {
-            ItemStack silver = OraxenItems.getItemById("terranova_silver").build();
+            ItemStack silver = NexoItems.itemFromId("terranova_silver").build();
             silver.setAmount(silverCount);
             event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), silver);
         }

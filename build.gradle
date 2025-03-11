@@ -17,8 +17,8 @@ repositories {
         url = "https://oss.sonatype.org/content/groups/public/"
     }
     maven {
-        name = "Oraxen"
-        url "https://repo.oraxen.com/releases"
+        name = "Nexo"
+        url = "https://repo.nexomc.com/releases"
     }
     maven {
         name = "github"
@@ -31,9 +31,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
-    compileOnly 'io.th0rgal:oraxen:1.180.0'
-    compileOnly 'de.mcterranova:terranova-lib:0.8.10'
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly 'com.nexomc:nexo:1.1.0'
+    compileOnly 'de.mcterranova:terranova-lib:1.0.0'
 }
 
 def targetJavaVersion = 21

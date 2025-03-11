@@ -1,7 +1,7 @@
 name: ChestShop
 version: '1.0-SNAPSHOT'
 main: org.chestShop.ChestShop
-api-version: '1.21'
+api-version: '1.21.4'
 authors: [Bastizeit, gerryxn]
 prefix: TerraNova
 website: mcterranova.de
@@ -15,4 +15,4 @@ permissions:
   chestshop.generatesilver:
     description: Allows the player to generate Silver for testing purposes.
     default: op
-depend: [Oraxen]
+depend: [Nexo]

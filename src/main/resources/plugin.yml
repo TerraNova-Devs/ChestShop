@@ -1,7 +1,7 @@
 name: ChestShop
 version: '1.0-SNAPSHOT'
 main: org.chestShop.ChestShop
-api-version: '1.21.4'
+api-version: '1.21.11'
 authors: [Bastizeit, gerryxn]
 prefix: TerraNova
 website: mcterranova.de

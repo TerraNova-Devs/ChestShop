@@ -1,7 +1,6 @@
 package org.chestShop;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import org.chestShop.commands.GenerateSilverCommand;
 import org.chestShop.listener.*;
 
 public final class ChestShop extends JavaPlugin {
@@ -15,9 +14,6 @@ public final class ChestShop extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
         getServer().getPluginManager().registerEvents(new ChestAccessListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopProtectionListener(this), this);
-
-        // Register commands
-        this.getCommand("generatesilver").setExecutor(new GenerateSilverCommand());
     }
 
     @Override
